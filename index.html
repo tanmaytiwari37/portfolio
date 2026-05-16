@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="solar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tanmay Tiwari — Aerospace × AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════
+   THEMES — 4 palettes via [data-theme]
+   ═══════════════════════════════════════════════════════ */
+:root[data-theme="cyber"] {
+  --bg:#050810; --bg2:#080d1a; --surface:#0f1a2e; --surface2:#162035;
+  --border:rgba(100,180,255,0.12); --border2:rgba(100,180,255,0.30);
+  --accent:#00d4ff; --accent2:#ff6b2b; --accent3:#7c3aed;
+  --text:#e8f4fd; --text2:#8ba8c4; --text3:#4a6a8a;
+  --glow:0 0 40px rgba(0,212,255,0.18);
+  --star-r:180; --star-g:220; --star-b:255;
+  --plane-color:rgba(180,220,255,0.8);
+}
+:root[data-theme="carbon"] {
+  --bg:#000000; --bg2:#060606; --surface:#0d0d0d; --surface2:#141414;
+  --border:rgba(0,255,140,0.10); --border2:rgba(0,255,140,0.30);
+  --accent:#00ff88; --accent2:#ffcc00; --accent3:#ff3366;
+  --text:#f0fff8; --text2:#88aa99; --text3:#4a665a;
+  --glow:0 0 40px rgba(0,255,140,0.18);
+  --star-r:0; --star-g:255; --star-b:140;
+  --plane-color:rgba(0,255,140,0.7);
+}
+:root[data-theme="plasma"] {
+  --bg:#0a0510; --bg2:#110820; --surface:#1a0d2e; --surface2:#251440;
+  --border:rgba(255,80,180,0.12); --border2:rgba(255,80,180,0.30);
+  --accent:#ff4d9d; --accent2:#ffd60a; --accent3:#7c3aed;
+  --text:#fdeaf6; --text2:#c4a0bd; --text3:#6a4a5e;
+  --glow:0 0 40px rgba(255,80,180,0.20);
+  --star-r:255; --star-g:180; --star-b:220;
+  --plane-color:rgba(255,180,220,0.7);
+}
+:root[data-theme="solar"] {
+  --bg:#f0f0f0; --bg2:#e8e8e8; --surface:#ffffff; --surface2:#f7f7f7;
+  --border:rgba(0,0,0,0.08); --border2:rgba(0,0,0,0.25);
+  --accent:#0a0a0a; --accent2:#555555; --accent3:#888888;
+  --text:#0a0a0a; --text2:#555555; --text3:#999999;
+  --glow:0 0 30px rgba(0,0,0,0.08);
+  --star-r:80; --star-g:80; --star-b:80;
+  --plane-color:rgba(20,20,20,0.5);
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body {
+  background:var(--bg); color:var(--text);
+  font-family:'JetBrains Mono',monospace;
+  overflow-x:hidden; min-height:100vh; cursor:default;
+  transition:background .6s ease, color .6s ease;
+}
+
+/* ─── CURSOR ─── */
+#cursor,#cursor-ring {
+  position:fixed; top:0; left:0; pointer-events:none; z-index:9999;
+  transform:translate(-50%,-50%);
+}
+#cursor { width:8px; height:8px; background:var(--accent); border-radius:50%; mix-blend-mode:difference;
+  transition:width .2s,height .2s,opacity .2s; }
+#cursor-ring { width:32px; height:32px; border:1px solid var(--accent); opacity:0.5; border-radius:50%;
+  transition:transform .15s ease-out,width .3s,height .3s,opacity .3s,border-color .3s; }
+@media (hover:none) { #cursor,#cursor-ring { display:none; } }
+
+/* ─── STARS + PLANE ─── */
+#stars-canvas { position:fixed; inset:0; z-index:0; pointer-events:none; opacity:0.65; }
+#plane-canvas { position:fixed; inset:0; z-index:1; pointer-events:none; }
+body::before {
+  content:''; position:fixed; inset:0; z-index:1; pointer-events:none;
+  opacity:0.04;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ─── NAV ─── */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:5000;
+  padding:1rem 2.5rem; display:flex; align-items:center; justify-content:space-between;
+  background:color-mix(in srgb, var(--bg) 75%, transparent);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  transition:background .6s ease;
+}
+.nav-logo { font-size:0.85rem; color:var(--accent); letter-spacing:0.2em; text-decoration:none; font-weight:600; }
+.nav-logo span { color:var(--text3); font-weight:400; }
+.nav-tabs {
+  display:flex; gap:0.25rem; list-style:none;
+  background:color-mix(in srgb, var(--surface) 60%, transparent);
+  border:1px solid var(--border); padding:0.3rem; border-radius:100px;
+}
+.nav-tab {
+  padding:0.5rem 1.1rem; font-size:0.7rem; color:var(--text2);
+  letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; border:none;
+  background:transparent; border-radius:100px; font-family:inherit; font-weight:500;
+  transition:color .3s, background .3s;
+}
+.nav-tab:hover { color:var(--text); }
+.nav-tab.active { background:var(--accent); color:var(--bg); box-shadow:var(--glow); }
+.nav-actions { display:flex; align-items:center; gap:0.7rem; }
+.theme-btn {
+  width:36px; height:36px; border:1px solid var(--border2);
+  background:var(--surface); color:var(--accent); border-radius:50%;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  font-size:0.9rem; font-family:inherit; transition:all .3s;
+}
+.theme-btn:hover { transform:rotate(30deg) scale(1.1); box-shadow:var(--glow); }
+
+main {
+  position:relative; z-index:10; padding:6rem 2.5rem 4rem;
+  max-width:1400px; margin:0 auto; min-height:100vh;
+}
+
+/* ─── TAB SWITCH ANIMATION ─── */
+.tab-content { display:none; }
+.tab-content.active { display:block; animation:tabIn 0.6s cubic-bezier(0.16,1,0.3,1); }
+@keyframes tabIn {
+  from { opacity:0; transform:translateY(20px); filter:blur(8px); }
+  to   { opacity:1; transform:translateY(0); filter:blur(0); }
+}
+
+/* ─── HOME ─── */
+.home-wrap {
+  display:grid; grid-template-columns:1.1fr 0.9fr; gap:3rem;
+  align-items:center; min-height:75vh;
+}
+.home-clean { display:flex; flex-direction:column; justify-content:center; padding:2rem 0; }
+.home-hello {
+  font-family:'JetBrains Mono',monospace; font-size:1.2rem; color:var(--text2);
+  font-weight:400; margin-bottom:1.5rem; letter-spacing:0.02em;
+  opacity:0; animation:fadeUp 0.7s 0.1s forwards;
+}
+.home-name {
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-size:clamp(3rem,9vw,7rem); font-weight:700; letter-spacing:-0.03em; line-height:0.98;
+  color:var(--text); margin-bottom:1.5rem;
+  opacity:0; animation:fadeUp 0.8s 0.25s forwards;
+}
+.home-role {
+  font-family:'JetBrains Mono',monospace; font-size:1.05rem; color:var(--text2);
+  font-weight:400; letter-spacing:0.01em; margin-bottom:2rem;
+  opacity:0; animation:fadeUp 0.7s 0.45s forwards;
+}
+.home-role .sep { color:var(--text3); margin:0 0.5rem; }
+
+.home-cta {
+  display:flex; gap:0.7rem; flex-wrap:wrap; margin-bottom:2.5rem;
+  opacity:0; animation:fadeUp 0.7s 0.55s forwards;
+}
+.btn {
+  padding:0.8rem 1.4rem; font-size:0.7rem; letter-spacing:0.15em; text-transform:uppercase;
+  text-decoration:none; font-family:inherit; font-weight:600; cursor:pointer;
+  border:1px solid var(--accent); transition:all .3s; display:inline-flex; align-items:center; gap:0.4rem;
+}
+.btn-primary { background:var(--accent); color:var(--bg); }
+.btn-primary:hover { box-shadow:var(--glow); transform:translateY(-2px); }
+.btn-ghost { background:transparent; color:var(--accent); }
+.btn-ghost:hover { background:color-mix(in srgb, var(--accent) 12%, transparent); }
+
+.home-status {
+  display:flex; align-items:center; gap:0.6rem;
+  font-family:'JetBrains Mono',monospace; font-size:0.65rem; color:var(--text3);
+  letter-spacing:0.15em; text-transform:uppercase;
+  opacity:0; animation:fadeUp 0.7s 0.65s forwards;
+}
+.home-status .dot {
+  width:7px; height:7px; border-radius:50%; background:var(--accent);
+  box-shadow:0 0 8px var(--accent);
+  animation:blink 2s ease-in-out infinite; flex-shrink:0;
+}
+@keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+@keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+/* ─── ORBIT VISUAL ─── */
+.home-orbit {
+  position:relative; height:500px;
+  display:flex; align-items:center; justify-content:center;
+}
+.orbit { position:absolute; border:1px dashed var(--border2); border-radius:50%; }
+.orbit::after {
+  content:''; position:absolute; width:10px; height:10px; border-radius:50%;
+  background:var(--accent); box-shadow:0 0 18px var(--accent);
+  top:-5px; left:50%; transform:translateX(-50%);
+}
+.orbit:nth-child(1) { width:200px; height:200px; animation:spin 12s linear infinite; }
+.orbit:nth-child(2) { width:320px; height:320px; animation:spin 22s linear infinite reverse;
+  border-color:color-mix(in srgb, var(--accent2) 40%, transparent); }
+.orbit:nth-child(2)::after { background:var(--accent2); box-shadow:0 0 14px var(--accent2);
+  width:7px; height:7px; top:-3.5px; }
+.orbit:nth-child(3) { width:460px; height:460px; animation:spin 35s linear infinite;
+  border-color:color-mix(in srgb, var(--accent3) 35%, transparent); }
+.orbit:nth-child(3)::after { display:none; }
+.orbit-core {
+  width:80px; height:80px;
+  background:radial-gradient(circle, var(--accent) 0%, transparent 70%);
+  border-radius:50%; filter:blur(2px); opacity:0.45;
+  animation:orbitPulse 3s ease-in-out infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+@keyframes orbitPulse { 0%,100% { opacity:0.35; transform:scale(1); } 50% { opacity:0.6; transform:scale(1.1); } }
+
+/* ─── SECTION HEADER ─── */
+.sec-head { margin-bottom:2.5rem; }
+.sec-tag {
+  font-size:0.65rem; color:var(--accent); letter-spacing:0.35em;
+  text-transform:uppercase; margin-bottom:0.6rem;
+}
+.sec-tag::before { content:'['; margin-right:0.5rem; }
+.sec-tag::after  { content:']'; margin-left:0.5rem; }
+.sec-title {
+  font-family:'Syne',sans-serif; font-size:clamp(1.8rem,3.5vw,2.6rem);
+  font-weight:800; letter-spacing:-0.02em; margin-bottom:0.5rem;
+}
+.sec-line { width:50px; height:2px; background:linear-gradient(90deg, var(--accent), transparent); }
+
+/* ─── PROJECTS GRID ─── */
+.proj-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:1.2rem; }
+.proj-card {
+  background:var(--surface); border:1px solid var(--border); overflow:hidden; cursor:pointer;
+  transition:transform .4s cubic-bezier(0.16,1,0.3,1), border-color .3s, box-shadow .3s;
+  position:relative; display:flex; flex-direction:column;
+}
+.proj-card:hover { transform:translateY(-6px); border-color:var(--accent); box-shadow:var(--glow); }
+.proj-thumb {
+  height:180px; position:relative; overflow:hidden;
+  display:flex; align-items:center; justify-content:center; background:var(--surface2);
+}
+.proj-thumb-bg { position:absolute; inset:0; opacity:0.6; transition:transform .6s; }
+.proj-card:hover .proj-thumb-bg { transform:scale(1.08); }
+.proj-icon { font-size:3rem; filter:drop-shadow(0 0 18px var(--accent)); position:relative; z-index:1; }
+.proj-num {
+  position:absolute; top:0.8rem; left:0.8rem; font-size:0.6rem; letter-spacing:0.2em;
+  color:var(--accent); background:color-mix(in srgb, var(--bg) 70%, transparent);
+  padding:0.2rem 0.5rem; border:1px solid var(--border); z-index:2;
+}
+.proj-badge {
+  position:absolute; top:0.8rem; right:0.8rem; font-size:0.55rem; letter-spacing:0.15em;
+  padding:0.25rem 0.55rem; text-transform:uppercase; font-weight:600; z-index:2;
+}
+.b-live { background:color-mix(in srgb, var(--accent) 18%, transparent); color:var(--accent); border:1px solid var(--accent); }
+.b-ml   { background:color-mix(in srgb, var(--accent3) 18%, transparent); color:var(--accent3); border:1px solid var(--accent3); }
+.b-aero { background:color-mix(in srgb, var(--accent2) 18%, transparent); color:var(--accent2); border:1px solid var(--accent2); }
+.proj-body { padding:1.1rem 1.2rem 1.2rem; display:flex; flex-direction:column; flex:1; }
+.proj-title { font-family:'Syne',sans-serif; font-size:1.05rem; font-weight:700; margin-bottom:0.8rem; color:var(--text); }
+.proj-tags { display:flex; flex-wrap:wrap; gap:0.35rem; margin-bottom:1rem; }
+.proj-tag {
+  font-size:0.6rem; letter-spacing:0.08em; padding:0.2rem 0.55rem;
+  background:color-mix(in srgb, var(--accent) 10%, transparent);
+  border:1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  color:var(--accent); font-weight:500;
+}
+.proj-foot {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-top:auto; padding-top:0.8rem; border-top:1px solid var(--border);
+}
+.proj-link {
+  font-size:0.65rem; letter-spacing:0.1em; color:var(--text2);
+  text-decoration:none; padding:0.3rem 0.7rem; border:1px solid var(--border2); transition:all .3s;
+}
+.proj-link:hover { color:var(--accent); border-color:var(--accent); }
+.proj-more { font-size:0.6rem; color:var(--text3); letter-spacing:0.1em; text-transform:uppercase; }
+
+/* ═══════════════════════════════════════════════════════
+   BLOG (CASE STUDIES) — long-form writing
+   ═══════════════════════════════════════════════════════ */
+.blog-layout {
+  display:grid; grid-template-columns:280px 1fr; gap:2.5rem;
+  align-items:start;
+}
+.blog-sidebar {
+  position:sticky; top:6rem;
+  border:1px solid var(--border); background:var(--surface);
+  padding:1.2rem;
+}
+.blog-sidebar-title {
+  font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase;
+  color:var(--accent); font-weight:600; margin-bottom:0.9rem;
+}
+.blog-toc { display:flex; flex-direction:column; gap:0.2rem; }
+.blog-toc-item {
+  padding:0.6rem 0.7rem; font-size:0.72rem; cursor:pointer;
+  border:none; background:transparent; color:var(--text2);
+  text-align:left; font-family:inherit; transition:all .3s;
+  border-left:2px solid transparent;
+  letter-spacing:0.02em;
+}
+.blog-toc-item:hover { color:var(--text); background:color-mix(in srgb, var(--accent) 6%, transparent); }
+.blog-toc-item.active {
+  color:var(--accent); border-left-color:var(--accent);
+  background:color-mix(in srgb, var(--accent) 10%, transparent);
+  font-weight:600;
+}
+
+.blog-article {
+  background:var(--surface); border:1px solid var(--border);
+  padding:2.5rem 2.8rem;
+  display:none;
+  animation:tabIn 0.5s cubic-bezier(0.16,1,0.3,1);
+}
+.blog-article.active { display:block; }
+
+.blog-hero {
+  margin-bottom:2rem; padding-bottom:1.5rem; border-bottom:1px solid var(--border);
+}
+.blog-meta {
+  font-size:0.6rem; letter-spacing:0.2em; text-transform:uppercase;
+  color:var(--accent); margin-bottom:0.7rem;
+}
+.blog-meta span { color:var(--text3); margin:0 0.5rem; }
+.blog-title {
+  font-family:'Syne',sans-serif; font-size:clamp(1.6rem,2.5vw,2.2rem);
+  font-weight:800; letter-spacing:-0.02em; line-height:1.1; color:var(--text);
+  margin-bottom:0.8rem;
+}
+.blog-subtitle {
+  font-size:0.95rem; color:var(--text2); line-height:1.6; font-style:italic;
+}
+.blog-actions { display:flex; gap:0.6rem; margin-top:1.2rem; flex-wrap:wrap; }
+.blog-action {
+  font-size:0.62rem; letter-spacing:0.15em; text-transform:uppercase;
+  padding:0.5rem 0.9rem; border:1px solid var(--border2); color:var(--text2);
+  text-decoration:none; transition:all .3s; font-weight:600;
+}
+.blog-action:hover { border-color:var(--accent); color:var(--accent); }
+.blog-action.primary { background:var(--accent); color:var(--bg); border-color:var(--accent); }
+.blog-action.primary:hover { box-shadow:var(--glow); }
+
+.blog-section { margin-bottom:2rem; }
+.blog-section h3 {
+  font-family:'Syne',sans-serif; font-size:0.95rem; font-weight:700;
+  letter-spacing:0.05em; text-transform:uppercase;
+  color:var(--accent); margin-bottom:0.9rem;
+  padding-bottom:0.4rem; border-bottom:1px solid var(--border);
+}
+.blog-section p {
+  font-size:0.88rem; line-height:1.78; color:var(--text);
+  margin-bottom:1rem; font-family:'JetBrains Mono',monospace; font-weight:300;
+}
+.blog-section p:last-child { margin-bottom:0; }
+.blog-section b { color:var(--accent); font-weight:600; }
+.blog-section ul {
+  list-style:none; padding:0; margin:0.5rem 0 1rem;
+}
+.blog-section ul li {
+  font-size:0.85rem; line-height:1.7; color:var(--text2);
+  padding-left:1.4rem; position:relative; margin-bottom:0.5rem;
+}
+.blog-section ul li::before {
+  content:'▸'; position:absolute; left:0; top:0;
+  color:var(--accent); font-size:0.7rem;
+}
+
+.tech-strip {
+  display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:0.5rem;
+}
+.tech-strip .tool-chip {
+  font-size:0.65rem; letter-spacing:0.05em; padding:0.35rem 0.7rem;
+  background:color-mix(in srgb, var(--accent) 10%, transparent);
+  border:1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  color:var(--accent); font-weight:500;
+}
+
+/* ═══════════════════════════════════════════════════════
+   CERTIFICATIONS
+   ═══════════════════════════════════════════════════════ */
+.cert-grid {
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
+  gap:1.2rem; margin-bottom:2rem;
+}
+.cert-card {
+  background:var(--surface); border:1px solid var(--border);
+  padding:1.5rem; transition:all .3s;
+  display:flex; flex-direction:column;
+  position:relative; overflow:hidden;
+}
+.cert-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg, var(--accent), var(--accent2));
+}
+.cert-card:hover { border-color:var(--border2); box-shadow:var(--glow); transform:translateY(-3px); }
+.cert-status {
+  font-size:0.55rem; letter-spacing:0.18em; text-transform:uppercase;
+  color:var(--text3); margin-bottom:0.8rem; font-weight:500;
+}
+.cert-status .badge {
+  display:inline-block; padding:0.15rem 0.45rem;
+  background:color-mix(in srgb, var(--accent) 15%, transparent);
+  color:var(--accent); border:1px solid var(--border2);
+  margin-left:0.4rem;
+}
+.cert-title {
+  font-family:'Syne',sans-serif; font-size:1.05rem; font-weight:700;
+  color:var(--text); margin-bottom:0.5rem;
+}
+.cert-issuer { font-size:0.75rem; color:var(--text2); margin-bottom:1rem; line-height:1.5; }
+.cert-date { font-size:0.65rem; color:var(--text3); letter-spacing:0.1em; margin-bottom:1rem; }
+.cert-preview {
+  height:140px; background:var(--bg2); border:1px dashed var(--border2);
+  display:flex; align-items:center; justify-content:center;
+  margin-bottom:1rem; font-size:0.65rem; color:var(--text3);
+  letter-spacing:0.15em; text-transform:uppercase;
+}
+.cert-preview img { width:100%; height:100%; object-fit:cover; }
+.cert-actions { display:flex; gap:0.4rem; margin-top:auto; }
+.cert-actions a, .cert-actions span {
+  flex:1; text-align:center; padding:0.5rem 0.6rem;
+  font-size:0.6rem; letter-spacing:0.12em; text-transform:uppercase;
+  border:1px solid var(--border2); color:var(--text2);
+  text-decoration:none; transition:all .3s; font-weight:500;
+}
+.cert-actions a:hover { color:var(--accent); border-color:var(--accent); }
+.cert-actions span { color:var(--text3); cursor:not-allowed; opacity:0.5; }
+
+.resume-block {
+  background:var(--surface); border:1px solid var(--border);
+  border-left:3px solid var(--accent);
+  padding:1.8rem 2rem; display:flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; gap:1.5rem; margin-top:1rem;
+}
+.resume-block-text h4 {
+  font-family:'Syne',sans-serif; font-size:1.15rem; font-weight:700; margin-bottom:0.3rem;
+}
+.resume-block-text p { font-size:0.78rem; color:var(--text2); line-height:1.5; }
+.resume-btn {
+  display:inline-block; padding:0.85rem 1.6rem; background:var(--accent); color:var(--bg);
+  text-decoration:none; font-size:0.7rem; letter-spacing:0.18em; text-transform:uppercase;
+  font-weight:700; transition:all .3s; border:1px solid var(--accent);
+}
+.resume-btn:hover { transform:translateY(-2px); box-shadow:var(--glow); }
+
+/* ─── CONTACT ─── */
+.contact-wrap { max-width:800px; margin:0 auto; text-align:center; padding:3rem 0; }
+.contact-big {
+  font-family:'Syne',sans-serif; font-size:clamp(2.5rem,6vw,4.5rem);
+  font-weight:800; letter-spacing:-0.03em; line-height:1.05; margin-bottom:1.5rem;
+}
+.contact-big em {
+  font-family:'JetBrains Mono',monospace; font-style:normal;
+  font-weight:400; color:var(--accent); font-size:0.6em;
+}
+.contact-sub {
+  font-size:0.9rem; color:var(--text2); max-width:500px;
+  margin:0 auto 2.5rem; line-height:1.7;
+}
+.contact-emails { margin-bottom:2.5rem; }
+.contact-email {
+  display:block; font-family:'Syne',sans-serif; font-size:1.2rem;
+  color:var(--accent); text-decoration:none; margin-bottom:0.5rem;
+  transition:opacity .3s;
+}
+.contact-email:hover { opacity:0.7; }
+.contact-email.alt { font-size:0.85rem; color:var(--text2); }
+.contact-email.alt:hover { color:var(--accent); }
+.socials { display:flex; justify-content:center; flex-wrap:wrap; gap:0.6rem; margin-bottom:2rem; }
+.social-pill {
+  padding:0.7rem 1.3rem; border:1px solid var(--border2); color:var(--text2);
+  text-decoration:none; font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase;
+  transition:all .3s; display:inline-flex; align-items:center; gap:0.5rem;
+}
+.social-pill:hover {
+  border-color:var(--accent); color:var(--accent);
+  background:color-mix(in srgb, var(--accent) 10%, transparent); transform:translateY(-2px);
+}
+
+/* ─── CONTACT FORM ─── */
+.contact-form {
+  margin:2rem auto 2.5rem;
+  max-width:560px;
+  text-align:left;
+  background:var(--surface);
+  border:1px solid var(--border);
+  padding:1.8rem 1.6rem;
+}
+.form-row { margin-bottom:1.1rem; }
+.form-row label {
+  display:block;
+  font-size:0.6rem;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--accent);
+  font-weight:600;
+  margin-bottom:0.5rem;
+}
+.form-row input,
+.form-row textarea {
+  width:100%;
+  background:var(--bg2);
+  border:1px solid var(--border);
+  color:var(--text);
+  padding:0.8rem 1rem;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.85rem;
+  transition:border-color .3s, box-shadow .3s;
+  resize:vertical;
+}
+.form-row input:focus,
+.form-row textarea:focus {
+  outline:none;
+  border-color:var(--accent);
+  box-shadow:0 0 0 1px var(--accent);
+}
+.form-row textarea { min-height:120px; max-height:300px; }
+.form-submit {
+  width:100%;
+  padding:0.95rem 1rem;
+  background:var(--accent);
+  color:var(--bg);
+  border:1px solid var(--accent);
+  font-family:inherit;
+  font-weight:700;
+  font-size:0.72rem;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:all .3s;
+}
+.form-submit:hover { box-shadow:var(--glow); transform:translateY(-2px); }
+.form-submit:disabled { opacity:0.5; cursor:not-allowed; transform:none; box-shadow:none; }
+
+.form-status {
+  margin-top:1rem;
+  padding:0.7rem 0.9rem;
+  font-size:0.72rem;
+  text-align:center;
+  letter-spacing:0.05em;
+  display:none;
+}
+.form-status.show { display:block; animation:fadeIn .3s ease; }
+.form-status.success {
+  background:color-mix(in srgb, var(--accent) 12%, transparent);
+  border:1px solid var(--accent);
+  color:var(--accent);
+}
+.form-status.error {
+  background:color-mix(in srgb, var(--accent2) 12%, transparent);
+  border:1px solid var(--accent2);
+  color:var(--accent2);
+}
+.form-divider {
+  text-align:center;
+  margin:2.5rem 0 1.5rem;
+  font-size:0.6rem;
+  letter-spacing:0.3em;
+  text-transform:uppercase;
+  color:var(--text3);
+  position:relative;
+}
+.form-divider::before,
+.form-divider::after {
+  content:'';
+  position:absolute;
+  top:50%;
+  width:30%;
+  height:1px;
+  background:var(--border);
+}
+.form-divider::before { left:0; }
+.form-divider::after { right:0; }
+
+.foot {
+  position:relative; z-index:10; text-align:center; padding:2rem 1rem;
+  border-top:1px solid var(--border); font-size:0.7rem; color:var(--text3); letter-spacing:0.05em;
+}
+.foot b { color:var(--text2); font-weight:500; }
+
+/* ─── MODAL (project quick view, kept for Work tab) ─── */
+.modal-bg {
+  position:fixed; inset:0; background:color-mix(in srgb, var(--bg) 85%, transparent);
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  z-index:8000; display:none; align-items:center; justify-content:center; padding:2rem;
+}
+.modal-bg.active { display:flex; animation:fadeIn .3s ease; }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+.modal {
+  background:var(--surface); border:1px solid var(--border2);
+  max-width:600px; width:100%; max-height:85vh; overflow-y:auto;
+  padding:2rem 2.2rem; position:relative;
+  animation:modalIn .4s cubic-bezier(0.16,1,0.3,1);
+}
+@keyframes modalIn {
+  from { opacity:0; transform:scale(0.95) translateY(20px); }
+  to   { opacity:1; transform:scale(1) translateY(0); }
+}
+.modal-close {
+  position:absolute; top:1rem; right:1rem; width:32px; height:32px;
+  background:transparent; border:1px solid var(--border); color:var(--text2);
+  cursor:pointer; font-family:inherit; transition:all .2s;
+}
+.modal-close:hover { color:var(--accent); border-color:var(--accent); }
+.modal h2 { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:800; margin-bottom:0.4rem; color:var(--text); }
+.modal-meta { font-size:0.65rem; color:var(--accent); letter-spacing:0.15em; text-transform:uppercase; margin-bottom:1rem; }
+.modal-sec { margin-bottom:1rem; }
+.modal-sec h3 {
+  font-size:0.7rem; color:var(--accent); letter-spacing:0.15em;
+  text-transform:uppercase; margin-bottom:0.5rem; font-weight:600;
+}
+.modal-sec p { font-size:0.85rem; line-height:1.7; color:var(--text2); }
+.modal-cta {
+  display:inline-block; margin-top:1rem; padding:0.7rem 1.2rem;
+  background:var(--accent); color:var(--bg); text-decoration:none;
+  font-size:0.65rem; letter-spacing:0.15em; text-transform:uppercase; font-weight:600;
+  border:1px solid var(--accent); transition:all .3s;
+}
+.modal-cta:hover { box-shadow:var(--glow); transform:translateY(-2px); }
+
+/* ═══════════════════════════════════════════════════════
+   MOBILE
+   ═══════════════════════════════════════════════════════ */
+@media (max-width:900px) {
+  .home-wrap { grid-template-columns:1fr; gap:2rem; }
+  .home-orbit { height:320px; order:-1; }
+  .orbit:nth-child(3) { display:none; }
+  .orbit:nth-child(2) { width:240px; height:240px; }
+  .orbit:nth-child(1) { width:140px; height:140px; }
+  .blog-layout { grid-template-columns:1fr; gap:1rem; }
+  .blog-sidebar { position:static; top:auto; }
+  .blog-toc { flex-direction:row; flex-wrap:wrap; gap:0.3rem; }
+  .blog-toc-item { flex:1; min-width:130px; border-left:none; border-bottom:2px solid transparent; }
+  .blog-toc-item.active { border-left:none; border-bottom-color:var(--accent); }
+}
+@media (max-width:640px) {
+  nav { padding:0.8rem 1rem; flex-wrap:wrap; gap:0.5rem; }
+  .nav-logo { font-size:0.75rem; }
+  .nav-tabs { order:3; width:100%; justify-content:center; flex-wrap:wrap; padding:0.25rem; }
+  .nav-tab { padding:0.4rem 0.7rem; font-size:0.6rem; letter-spacing:0.05em; }
+  main { padding:8rem 1.2rem 3rem; }
+  .home-status { font-size:0.55rem; flex-wrap:wrap; }
+  .home-orbit { height:260px; }
+  .home-cta { flex-direction:column; align-items:stretch; }
+  .home-cta .btn { justify-content:center; }
+  .blog-article { padding:1.5rem 1.3rem; }
+  .blog-section p { font-size:0.82rem; }
+  .resume-block { flex-direction:column; align-items:flex-start; text-align:left; }
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<canvas id="stars-canvas"></canvas>
+<canvas id="plane-canvas"></canvas>
+
+<nav>
+  <a href="#home" class="nav-logo" onclick="showTab('home'); return false;">TT<span>.systems</span></a>
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-tab="home" onclick="showTab('home')">Home</button>
+    <button class="nav-tab" data-tab="work" onclick="showTab('work')">Work</button>
+    <button class="nav-tab" data-tab="blog" onclick="showTab('blog')">Blog</button>
+    <button class="nav-tab" data-tab="certs" onclick="showTab('certs')">Certifications</button>
+    <button class="nav-tab" data-tab="contact" onclick="showTab('contact')">Contact</button>
+  </div>
+  <div class="nav-actions">
+    <button class="theme-btn" onclick="cycleTheme()" title="Switch theme" id="theme-btn">○</button>
+  </div>
+</nav>
+
+<main>
+
+<!-- ═══ HOME ═══ -->
+<section class="tab-content active" id="home">
+  <div class="home-wrap">
+    <div class="home-clean">
+      <div class="home-hello">Hi, I am</div>
+      <h1 class="home-name">Tanmay Tiwari</h1>
+      <div class="home-role">Aerospace Engineer <span class="sep">/</span> AI &amp; Data Science</div>
+      <div class="home-cta">
+        <a href="#" class="btn btn-primary" onclick="showTab('work'); return false;">View Work →</a>
+        <a href="#" class="btn btn-ghost" onclick="showTab('certs'); return false;">Resume ↓</a>
+      </div>
+      <div class="home-status">
+        <span class="dot"></span>
+        Available for collaboration · Kothri Kalan, IN · 2026
+      </div>
+    </div>
+    <div class="home-orbit">
+      <div class="orbit"></div>
+      <div class="orbit"></div>
+      <div class="orbit"></div>
+      <div class="orbit-core"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ WORK ═══ -->
+<section class="tab-content" id="work">
+  <div class="sec-head">
+    <div class="sec-tag">01 / Work</div>
+    <h2 class="sec-title">Selected Projects</h2>
+    <div class="sec-line"></div>
+  </div>
+
+  <div class="proj-grid">
+
+    <article class="proj-card" onclick="openModal('p1')">
+      <div class="proj-thumb">
+        <div class="proj-thumb-bg" style="background:linear-gradient(135deg, transparent 0%, color-mix(in srgb, var(--accent3) 25%, transparent) 100%);"></div>
+        <div class="proj-num">01</div>
+        <div class="proj-badge b-ml">ML / AI</div>
+        <div class="proj-icon">🌲</div>
+      </div>
+      <div class="proj-body">
+        <div class="proj-title">Student Productivity Classifier</div>
+        <div class="proj-tags">
+          <span class="proj-tag">Python</span><span class="proj-tag">Scikit-learn</span><span class="proj-tag">Random Forest</span>
+        </div>
+        <div class="proj-foot">
+          <a href="https://github.com/tanmaytiwari37/Student-Productivity" class="proj-link" target="_blank" onclick="event.stopPropagation()">GitHub ↗</a>
+          <span class="proj-more">Read Case Study →</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="proj-card" onclick="openModal('p2')">
+      <div class="proj-thumb">
+        <div class="proj-thumb-bg" style="background:linear-gradient(135deg, transparent 0%, color-mix(in srgb, var(--accent2) 25%, transparent) 100%);"></div>
+        <div class="proj-num">02</div>
+        <div class="proj-badge b-aero">AEROSPACE</div>
+        <div class="proj-icon">🌡️</div>
+      </div>
+      <div class="proj-body">
+        <div class="proj-title">ISA Atmospheric Calculator</div>
+        <div class="proj-tags">
+          <span class="proj-tag">Python</span><span class="proj-tag">NumPy</span><span class="proj-tag">Matplotlib</span>
+        </div>
+        <div class="proj-foot">
+          <a href="https://github.com/tanmaytiwari37/Aerospace_Projects" class="proj-link" target="_blank" onclick="event.stopPropagation()">GitHub ↗</a>
+          <span class="proj-more">Read Case Study →</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="proj-card" onclick="openModal('p3')">
+      <div class="proj-thumb">
+        <div class="proj-thumb-bg" style="background:linear-gradient(135deg, transparent 0%, color-mix(in srgb, var(--accent) 25%, transparent) 100%);"></div>
+        <div class="proj-num">03</div>
+        <div class="proj-badge b-live">LIVE</div>
+        <div class="proj-icon">🎵</div>
+      </div>
+      <div class="proj-body">
+        <div class="proj-title">Vibe-Tunes</div>
+        <div class="proj-tags">
+          <span class="proj-tag">Streamlit</span><span class="proj-tag">Pandas</span><span class="proj-tag">UX</span>
+        </div>
+        <div class="proj-foot">
+          <a href="https://github.com/tanmaytiwari37/Vibe-Tunes" class="proj-link" target="_blank" onclick="event.stopPropagation()">GitHub ↗</a>
+          <span class="proj-more">Read Case Study →</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="proj-card" onclick="openModal('p4')">
+      <div class="proj-thumb">
+        <div class="proj-thumb-bg" style="background:linear-gradient(135deg, transparent 0%, color-mix(in srgb, var(--accent3) 20%, transparent) 100%);"></div>
+        <div class="proj-num">04</div>
+        <div class="proj-badge b-ml">DATA VIZ</div>
+        <div class="proj-icon">📊</div>
+      </div>
+      <div class="proj-body">
+        <div class="proj-title">Habit Tracker</div>
+        <div class="proj-tags">
+          <span class="proj-tag">Python</span><span class="proj-tag">OOP</span><span class="proj-tag">Matplotlib</span>
+        </div>
+        <div class="proj-foot">
+          <a href="https://github.com/tanmaytiwari37/Habit-Tracker" class="proj-link" target="_blank" onclick="event.stopPropagation()">GitHub ↗</a>
+          <span class="proj-more">Read Case Study →</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="proj-card" onclick="openModal('p5')">
+      <div class="proj-thumb">
+        <div class="proj-thumb-bg" style="background:linear-gradient(135deg, transparent 0%, color-mix(in srgb, var(--accent2) 20%, transparent) 100%);"></div>
+        <div class="proj-num">05</div>
+        <div class="proj-badge b-live">TOOL</div>
+        <div class="proj-icon">📝</div>
+      </div>
+      <div class="proj-body">
+        <div class="proj-title">Utility Scripts (To-Do)</div>
+        <div class="proj-tags">
+          <span class="proj-tag">Python</span><span class="proj-tag">CLI</span>
+        </div>
+        <div class="proj-foot">
+          <a href="https://github.com/tanmaytiwari37/Utility_Scripts" class="proj-link" target="_blank" onclick="event.stopPropagation()">GitHub ↗</a>
+          <span class="proj-more">Quick View</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="proj-card" style="cursor:default; opacity:0.6;">
+      <div class="proj-thumb">
+        <div class="proj-thumb-bg" style="background:linear-gradient(135deg, transparent 0%, color-mix(in srgb, var(--text3) 20%, transparent) 100%);"></div>
+        <div class="proj-num">06</div>
+        <div class="proj-badge b-ml">SOON</div>
+        <div class="proj-icon">🚀</div>
+      </div>
+      <div class="proj-body">
+        <div class="proj-title">Next Project Loading...</div>
+        <div class="proj-tags">
+          <span class="proj-tag">CFD</span><span class="proj-tag">GenAI</span><span class="proj-tag">TBD</span>
+        </div>
+        <div class="proj-foot">
+          <span class="proj-link">In Progress</span>
+          <span class="proj-more">Coming Soon</span>
+        </div>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- ═══ BLOG / CASE STUDIES ═══ -->
+<section class="tab-content" id="blog">
+  <div class="sec-head">
+    <div class="sec-tag">02 / Blog</div>
+    <h2 class="sec-title">Project Case Studies</h2>
+    <div class="sec-line"></div>
+  </div>
+
+  <div class="blog-layout">
+
+    <aside class="blog-sidebar">
+      <div class="blog-sidebar-title">// Case Studies</div>
+      <div class="blog-toc">
+        <button class="blog-toc-item active" data-blog="b1" onclick="showBlog('b1')">01 · Student Productivity</button>
+        <button class="blog-toc-item" data-blog="b2" onclick="showBlog('b2')">02 · ISA Atmosphere</button>
+        <button class="blog-toc-item" data-blog="b3" onclick="showBlog('b3')">03 · Vibe-Tunes</button>
+        <button class="blog-toc-item" data-blog="b4" onclick="showBlog('b4')">04 · Habit Tracker</button>
+      </div>
+    </aside>
+
+    <div class="blog-content">
+
+      <!-- BLOG 01 — Student Productivity -->
+      <article class="blog-article active" id="b1">
+        <div class="blog-hero">
+          <div class="blog-meta">CASE STUDY 01 <span>·</span> MACHINE LEARNING <span>·</span> 2026</div>
+          <h2 class="blog-title">Student Productivity Classifier</h2>
+          <p class="blog-subtitle">A Random Forest classifier that predicts productivity tiers — Low, Medium, High — from four lifestyle features. My first complete end-to-end ML project.</p>
+          <div class="blog-actions">
+            <a href="https://github.com/tanmaytiwari37/Student-Productivity" target="_blank" class="blog-action primary">GitHub Repo ↗</a>
+            <a href="#" onclick="showTab('work'); return false;" class="blog-action">All Projects</a>
+          </div>
+        </div>
+
+        <div class="blog-section">
+          <h3>What it does</h3>
+          <p>This project is a supervised <b>machine-learning classifier</b> that takes four numerical lifestyle inputs — average sleep hours, study hours, screen time, and exercise frequency — and predicts the user's productivity tier: <b>Low, Medium, or High</b>. The underlying model is a <b>Random Forest</b>, an ensemble of decision trees that aggregates predictions across many weak learners to produce a robust final classification.</p>
+          <p>The pipeline runs the full ML lifecycle locally: data ingestion, train-test stratification, model fitting, evaluation, and prediction on unseen inputs. There is no web interface yet — the project lives as a Jupyter-style notebook plus supporting Python modules.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>Why I built it</h3>
+          <p>I wanted a project that would force me to walk through every stage of a real machine-learning workflow, not just the modeling step. Most introductory ML tutorials hand you clean data and a fit-predict-score loop. I wanted the messier reality: deciding what counts as a feature, choosing how to stratify the train-test split, picking an algorithm appropriate to the data size, and reading what the trained model actually tells you about the underlying domain.</p>
+          <p>The topic — student productivity — was deliberate. As an engineering student preparing for both academic exams and defense services, I am genuinely curious about which daily habits actually correlate with productive output. Building the model was a way to ask that question with code instead of intuition.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>How I built it</h3>
+          <p>The implementation walks through several deliberate stages. First, I structured the input data with four features and one target label — three productivity classes encoded as integers. Next came <b>exploratory analysis</b> in Pandas: distribution checks, missing-value audits, and basic correlation inspection between each feature and the target.</p>
+          <p>For modeling, I chose <b>Scikit-learn's RandomForestClassifier</b> over a single decision tree because Random Forests handle small datasets with mixed feature scales gracefully, resist overfitting through bagging, and expose feature-importance scores that turn the model into an interpretability tool, not just a prediction engine. The data was split using <b>stratified sampling</b> so each productivity class was proportionally represented in both train and test sets — critical when class sizes are uneven.</p>
+          <p>Evaluation went beyond raw accuracy. I read the <b>confusion matrix</b> to see which classes the model confused with which, since misclassifying "High" as "Low" is a different kind of error from confusing two adjacent tiers. Finally, I extracted feature-importance rankings to surface which lifestyle inputs the trees were actually leaning on.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>What I learned</h3>
+          <p>Three lessons shaped the rest of my ML work. <b>Feature engineering matters more than algorithm choice</b> at this scale — a thoughtful feature design and a clean train-test split beat algorithm hyperparameter tuning every time on small datasets. <b>Interpretability is not optional</b> — a classifier you cannot explain is a classifier you cannot trust, and Random Forest's feature-importance output is one of the cleanest interpretability handles in scikit-learn. <b>Evaluation is multidimensional</b> — accuracy is a single number; the confusion matrix and per-class precision/recall tell you what kinds of mistakes the model is actually making.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>Real-world relevance</h3>
+          <p>The specific use case — student productivity prediction — is modest. But the architecture generalizes to any problem where you want to predict a categorical outcome from a small set of numerical lifestyle, sensor, or operational inputs: <b>fatigue prediction in pilots, fitness-readiness scoring for athletes, classification of engineering-system health states from sensor telemetry</b>. The pattern of "ingest features → stratified split → Random Forest → interpret importance" is identical across all of these.</p>
+          <p>For me personally, the model became a baseline I will return to in aerospace contexts: any time I want to classify a discrete physical or behavioral state from a small feature set, Random Forest is now my default starting point.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>Stack</h3>
+          <div class="tech-strip">
+            <span class="tool-chip">Python</span>
+            <span class="tool-chip">Scikit-learn</span>
+            <span class="tool-chip">Pandas</span>
+            <span class="tool-chip">NumPy</span>
+            <span class="tool-chip">Matplotlib</span>
+            <span class="tool-chip">Jupyter</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- BLOG 02 — ISA Atmospheric -->
+      <article class="blog-article" id="b2">
+        <div class="blog-hero">
+          <div class="blog-meta">CASE STUDY 02 <span>·</span> AEROSPACE × COMPUTATION <span>·</span> 2026</div>
+          <h2 class="blog-title">ISA Atmospheric Calculator</h2>
+          <p class="blog-subtitle">A Python implementation of the International Standard Atmosphere from 0 to 86 km. Computes temperature, pressure, and density across every atmospheric layer, with Matplotlib visualizations validated against published reference tables.</p>
+          <div class="blog-actions">
+            <a href="https://github.com/tanmaytiwari37/Aerospace_Projects" target="_blank" class="blog-action primary">GitHub Repo ↗</a>
+            <a href="#" onclick="showTab('work'); return false;" class="blog-action">All Projects</a>
+          </div>
+        </div>
+
+        <div class="blog-section">
+          <h3>What it does</h3>
+          <p>The tool models the <b>International Standard Atmosphere (ISA)</b> — the reference atmosphere agreed upon by aviation, aerospace, and meteorological bodies as a baseline for engineering calculations. Given any altitude between sea level and 86 kilometers, the program returns three values: <b>temperature, atmospheric pressure, and air density</b> at that altitude.</p>
+          <p>The atmosphere is divided into seven layers, each with its own lapse rate (how temperature changes with altitude). The program detects which layer your input altitude falls in, applies the correct lapse-rate equation for that layer, and computes the corresponding thermodynamic state. It then plots the full vertical profile — temperature, pressure, and density vs. altitude — using Matplotlib.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>Why I built it</h3>
+          <p>I was studying aerospace fundamentals and kept hitting the same problem: every aerodynamics, propulsion, and flight-mechanics formula assumes you already know the atmospheric conditions at your flight altitude. The textbook ISA tables give you discrete values at fixed altitudes, but the real calculations want continuous values at any altitude in between. Looking up and interpolating tables by hand is slow and error-prone.</p>
+          <p>I wanted a tool that I owned, that I understood from first principles, and that I could trust because I had implemented every line of the underlying physics myself. Buying or installing a black-box atmospheric library would not have taught me anything. Writing one from scratch forced me to actually understand each layer transition, each governing equation, and why the ISA is constructed the way it is.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>How I built it</h3>
+          <p>The structure follows the physics directly. I encoded the seven atmospheric layers as a data structure with each layer's <b>base altitude, base temperature, base pressure, and lapse rate</b>. The core function then takes an input altitude, identifies which layer contains it, and applies one of two governing equations depending on whether that layer's lapse rate is zero (isothermal) or non-zero.</p>
+          <p>For layers with a non-zero lapse rate, temperature is computed linearly, and pressure follows the standard <b>barometric formula</b> derived from hydrostatic equilibrium combined with the ideal gas law. For isothermal layers, pressure decays exponentially. Density falls out of pressure and temperature via the ideal gas equation.</p>
+          <p>I implemented the math in vectorized NumPy so the same code path computes single values or full altitude sweeps without modification. Visualization uses Matplotlib's standard plotting interface, with each thermodynamic quantity rendered on its own subplot for clarity.</p>
+          <p>Validation was the most important step. I compared my output against published ISA reference tables at standard altitudes — sea level, 11 km (tropopause), 20 km, 32 km, 47 km, 51 km, and 71 km — to confirm the model matched established values within rounding tolerance.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>What I learned</h3>
+          <p>This was my first project where the code was almost entirely a transcription of physics into Python, and that taught me how engineering software is supposed to be written. <b>Boundary conditions are everything</b> — most of the bugs I hit were not algorithmic, they were off-by-one errors at layer transitions where two governing equations meet. <b>Validation against authoritative sources is non-negotiable</b> — without checking against published ISA tables, I would have shipped a model with subtle errors and not known. <b>NumPy vectorization is a force multiplier</b> — writing the math once in a vectorized form let the same code handle a single-altitude query or a thousand-point profile sweep with no logic change.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>Real-world relevance</h3>
+          <p>The ISA model is the foundation underneath nearly every aerospace calculation that involves air. It feeds into: <b>aircraft performance modeling</b> (lift, drag, and engine thrust all depend on local air density), <b>missile and rocket trajectory simulation</b>, <b>UAV altitude planning</b>, <b>weather-balloon and high-altitude payload design</b>, and the calibration of <b>flight-test instrumentation</b>. Any pilot, aerospace engineer, or atmospheric scientist works on top of this model whether they realize it or not.</p>
+          <p>For me, this project is the foundation layer of a longer arc. I plan to extend it into <b>flight-envelope visualization, propulsion performance estimation at altitude, and eventually a small computational tool for aircraft mission profiling</b>.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>Stack</h3>
+          <div class="tech-strip">
+            <span class="tool-chip">Python</span>
+            <span class="tool-chip">NumPy</span>
+            <span class="tool-chip">Matplotlib</span>
+            <span class="tool-chip">Atmospheric Physics</span>
+            <span class="tool-chip">Engineering Mathematics</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- BLOG 03 — Vibe-Tunes -->
+      <article class="blog-article" id="b3">
+        <div class="blog-hero">
+          <div class="blog-meta">CASE STUDY 03 <span>·</span> RECOMMENDATION SYSTEMS <span>·</span> 2025</div>
+          <h2 class="blog-title">Vibe-Tunes</h2>
+          <p class="blog-subtitle">A mood-to-music recommendation engine. Maps emotional states onto audio feature dimensions like tempo, valence, and energy, then surfaces matching tracks through a Streamlit interface.</p>
+          <div class="blog-actions">
+            <a href="https://github.com/tanmaytiwari37/Vibe-Tunes" target="_blank" class="blog-action primary">GitHub Repo ↗</a>
+            <a href="#" onclick="showTab('work'); return false;" class="blog-action">All Projects</a>
+          </div>
+        </div>
+
+        <div class="blog-section">
+          <h3>What it does</h3>
+          <p>Vibe-Tunes is a small but complete <b>recommendation system</b>. The user selects an emotional state — for example, "calm," "energetic," or "focused" — and the application returns a curated list of music tracks that match that mood, drawing from a dataset annotated with audio-feature scores.</p>
+          <p>Under the hood, each emotional state is mapped to a target zone in a multi-dimensional <b>feature space</b> defined by audio attributes: <b>tempo (BPM), valence (musical positivity), energy, danceability, and acousticness</b>. The recommendation engine then filters the track dataset for entries whose feature vectors fall within that target zone.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>Why I built it</h3>
+          <p>This project came out of a basic frustration: existing music recommenders optimize for what you have listened to in the past, not what you actually want to feel right now. If I am about to sit down for a focused study session, my listening history from yesterday's gym workout is the wrong signal to recommend from. I wanted a system where the input is <b>the state I want to be in</b>, not the state I have been in.</p>
+          <p>From a learning standpoint, the project was also my entry into <b>end-to-end application development</b> — moving beyond standalone scripts into something with a real user interface, persistent state, and a deliverable web UI. It was my milestone project for the Codebasics Gen AI bootcamp.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>How I built it</h3>
+          <p>The architecture has three layers. The <b>data layer</b> is a Pandas DataFrame of tracks, each row carrying its audio-feature vector and metadata. The <b>logic layer</b> contains the mood-to-feature mapping — a dictionary that defines, for example, that "calm" corresponds to low tempo, high acousticness, and moderate valence. The mapping was hand-tuned based on documented audio-feature conventions used by mainstream music recommendation services. The <b>presentation layer</b> is a Streamlit app that exposes mood selection through a dropdown and renders the filtered recommendations as cards.</p>
+          <p>For the filtering itself, I used Pandas boolean indexing with <b>tolerance windows</b> around each target feature value — not exact matches, since real audio features sit on a continuous scale. The system also handles edge cases: empty result sets fall back to a "closest match" mode using a weighted distance calculation across feature dimensions.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>What I learned</h3>
+          <p>This project taught me three things I now consider non-negotiable for any user-facing system. <b>Domain modeling comes first</b> — the recommendation quality depended almost entirely on how thoughtfully the mood-to-feature mapping was constructed, not on the cleverness of the filter logic. <b>UI is a design decision, not a leftover</b> — Streamlit removed almost all the technical friction of building an interface, but the user-flow choices (single dropdown vs. sliders, card layout vs. list) materially changed how the recommendations felt. <b>Edge cases define product quality</b> — handling the empty-result case gracefully is what separates a demo from a usable tool.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>Real-world relevance</h3>
+          <p>The pattern Vibe-Tunes implements — <b>map a high-level user intent onto a feature space, filter or rank items within that space, expose results through a clean interface</b> — is the same pattern that underlies content recommendation across nearly every domain: music, video, e-commerce, news. The same architecture extends to non-entertainment contexts as well: <b>matching pilots to suitable training simulators based on skill-feature vectors, recommending engineering case studies to students based on their topic-interest profile, surfacing maintenance procedures based on detected fault signatures</b>.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>Stack</h3>
+          <div class="tech-strip">
+            <span class="tool-chip">Python</span>
+            <span class="tool-chip">Streamlit</span>
+            <span class="tool-chip">Pandas</span>
+            <span class="tool-chip">NumPy</span>
+            <span class="tool-chip">Feature-Space Logic</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- BLOG 04 — Habit Tracker -->
+      <article class="blog-article" id="b4">
+        <div class="blog-hero">
+          <div class="blog-meta">CASE STUDY 04 <span>·</span> BEHAVIORAL ANALYTICS <span>·</span> 2026</div>
+          <h2 class="blog-title">Habit Tracker</h2>
+          <p class="blog-subtitle">A modular Python framework for tracking habits, computing streaks and completion rates, and visualizing behavioral trends. Built with strict separation between logging, analytics, and visualization layers.</p>
+          <div class="blog-actions">
+            <a href="https://github.com/tanmaytiwari37/Habit-Tracker" target="_blank" class="blog-action primary">GitHub Repo ↗</a>
+            <a href="#" onclick="showTab('work'); return false;" class="blog-action">All Projects</a>
+          </div>
+        </div>
+
+        <div class="blog-section">
+          <h3>What it does</h3>
+          <p>The Habit Tracker is a Python framework that records daily check-ins for a configurable set of habits and then computes three categories of behavioral insight: <b>current streak length, overall completion rate, and trend visualization over time</b>. Streaks tell you about momentum. Completion rates tell you about consistency. Trend plots tell you about direction — whether your discipline is improving, flat, or decaying.</p>
+          <p>The tool runs locally as a Python module. There is no web interface; the focus was deliberately on the underlying computation and architecture rather than the surface UI.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>Why I built it</h3>
+          <p>I had two reasons, and they reinforced each other. The first was personal: as a defense aspirant maintaining a long-running discipline routine — physical training, study blocks, technical practice — I wanted a system that measured my consistency objectively, not by my own optimistic estimation.</p>
+          <p>The second reason was architectural. I had been writing single-file Python scripts for most of my prior projects, and I wanted to deliberately build something that <b>separated concerns into independent modules</b>. The habit-tracker problem is small enough to fit in one file but rich enough to benefit from real modular design — making it the right project to practice <b>object-oriented structuring</b> on.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>How I built it</h3>
+          <p>The architecture is three modules, each with one job. The <b>logging module</b> handles the data layer — adding a habit, recording a check-in for a given date, and persisting state. The <b>analytics module</b> takes the logged data and computes derived metrics: current streak, longest streak, completion rate over a configurable window, and rolling averages. The <b>visualization module</b> consumes the analytics output and renders Matplotlib plots — a calendar-heatmap-style streak view and a line plot showing completion-rate trend.</p>
+          <p>The design rule I enforced was that each module only knew about the layer directly below it. Visualization never reads raw logs — it only consumes analytics. Analytics never writes — it only reads logs and computes. This means I can swap any layer's implementation independently. If I later want to move the logging layer from a local file to a database, the analytics and visualization code does not change at all.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>What I learned</h3>
+          <p>The technical lesson was about <b>architecture before features</b>. The first version I wrote was a single 200-line script that did everything. When I refactored it into three modules, the total line count grew slightly, but the cognitive load of each module shrank dramatically. Adding the trend-plotting feature later took an hour because I only had to touch the visualization module. If I had stayed in the single-file structure, the same feature would have required understanding the entire codebase to add safely.</p>
+          <p>The personal lesson was harder. Once I had honest data on my own consistency, I could not lie to myself about it. The first three weeks of data showed that I was substantially less consistent than I had assumed. The tool worked exactly as intended — and the discomfort that produced was its actual value.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>Real-world relevance</h3>
+          <p>The architecture generalizes to any <b>time-series behavioral analytics</b> problem where you record discrete events over time and want to derive consistency, momentum, and trend metrics. Beyond personal habit tracking, the same pattern applies to: <b>flight-hour logging and currency tracking for pilots, training-program adherence monitoring for athletes, preventive-maintenance compliance tracking for fleet operators, and onboarding-progress dashboards in technical training programs</b>.</p>
+          <p>The deeper point is that <b>any organization that depends on consistent behavior — defense forces, flight schools, R&D teams — needs tooling that measures that consistency objectively</b>. This project was my first attempt at building that kind of tooling.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>Stack</h3>
+          <div class="tech-strip">
+            <span class="tool-chip">Python</span>
+            <span class="tool-chip">Matplotlib</span>
+            <span class="tool-chip">Object-Oriented Design</span>
+            <span class="tool-chip">Modular Architecture</span>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CERTIFICATIONS ═══ -->
+<section class="tab-content" id="certs">
+  <div class="sec-head">
+    <div class="sec-tag">03 / Certifications</div>
+    <h2 class="sec-title">Verified Credentials</h2>
+    <div class="sec-line"></div>
+  </div>
+
+  <div class="cert-grid">
+
+    <div class="cert-card">
+      <div class="cert-status">Issued <span class="badge">VERIFIED</span></div>
+      <h3 class="cert-title">Python Essentials</h3>
+      <div class="cert-issuer">Vityarthi · VIT Bhopal University</div>
+      <div class="cert-date">DEC 2025</div>
+      <div class="cert-preview" id="cert-1-preview">
+        <img src="certs/Python-Essentials.png" alt="Python Essentials Certificate">
+      </div>
+      <div class="cert-actions">
+        <span>View ↗</span>
+        <span>Verify ↗</span>
+      </div>
+    </div>
+
+    <div class="cert-card">
+      <div class="cert-status">Issued <span class="badge">VERIFIED</span></div>
+      <h3 class="cert-title">Fundamentals of AI &amp; ML</h3>
+      <div class="cert-issuer">Vityarthi · VIT Bhopal University</div>
+      <div class="cert-date">APR 2026</div>
+      <div class="cert-preview" id="cert-2-preview">
+        <img src="certs/Fundamentals-of-Ai-Ml.png" alt="Fundamentals of AI and ML Certificate">
+      </div>
+      <div class="cert-actions">
+        <span>View ↗</span>
+        <span>Verify ↗</span>
+      </div>
+    </div>
+
+    <div class="cert-card">
+      <div class="cert-status">Issued <span class="badge">VERIFIED</span></div>
+      <h3 class="cert-title">Digital Literacy</h3>
+      <div class="cert-issuer">Vityarthi · VIT Bhopal University</div>
+      <div class="cert-date">APR 2026</div>
+      <div class="cert-preview" id="cert-3-preview">
+        <img src="certs/Digital-Literacy.png" alt="Digital Literacy Certificate">
+      </div>
+      <div class="cert-actions">
+        <span>View ↗</span>
+        <span>Verify ↗</span>
+      </div>
+    </div>
+
+    <div class="cert-card">
+      <div class="cert-status">Issued <span class="badge">VERIFIED</span></div>
+      <h3 class="cert-title">Python: Beginner to Advanced for Data Professionals</h3>
+      <div class="cert-issuer">Codebasics · 17h 39m lectures · 26h practice · 2 projects</div>
+      <div class="cert-date">MAY 2026 · GUID: CB-48-641460</div>
+      <div class="cert-preview" id="cert-4-preview">
+        <img src="certs/Codebasics-Python.png" alt="Codebasics Python Certificate">
+      </div>
+      <div class="cert-actions">
+        <span>View ↗</span>
+        <span>Verify ↗</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="resume-block">
+    <div class="resume-block-text">
+      <h4>Full Resume</h4>
+      <p>One-page technical resume covering education, projects, skills, leadership, and defense orientation.</p>
+    </div>
+    <a href="Tanmay_Tiwari_Resume.pdf" target="_blank" download class="resume-btn">⬇ Download PDF</a>
+  </div>
+</section>
+
+<!-- ═══ CONTACT ═══ -->
+<section class="tab-content" id="contact">
+  <div class="contact-wrap">
+    <div class="sec-tag" style="text-align:center; margin-bottom:1rem;">04 / Contact</div>
+    <h2 class="contact-big">Let's build <em>something.</em></h2>
+    <p class="contact-sub">Open to collaboration on aerospace projects, data science work, or conversations about defense technology.</p>
+
+    <!-- NETLIFY FORM -->
+    <form
+      name="contact"
+      method="POST"
+      data-netlify="true"
+      data-netlify-honeypot="bot-field"
+      class="contact-form"
+      onsubmit="handleContactSubmit(event)"
+    >
+      <input type="hidden" name="form-name" value="contact">
+      <p style="display:none;">
+        <label>Don't fill this out if you're human: <input name="bot-field"></label>
+      </p>
+
+      <div class="form-row">
+        <label for="cf-name">Name</label>
+        <input type="text" id="cf-name" name="name" required autocomplete="name" placeholder="Your name">
+      </div>
+
+      <div class="form-row">
+        <label for="cf-email">Email</label>
+        <input type="email" id="cf-email" name="email" required autocomplete="email" placeholder="you@example.com">
+      </div>
+
+      <div class="form-row">
+        <label for="cf-message">Message</label>
+        <textarea id="cf-message" name="message" required placeholder="What would you like to discuss?"></textarea>
+      </div>
+
+      <button type="submit" class="form-submit" id="cf-submit">Send Message →</button>
+      <div class="form-status" id="cf-status"></div>
+    </form>
+
+    <div class="form-divider">or reach out directly</div>
+
+    <div class="contact-emails">
+      <a href="mailto:itanmaytiwari37@gmail.com" class="contact-email">itanmaytiwari37@gmail.com</a>
+      <a href="mailto:iamtanmay37@gmail.com" class="contact-email alt">iamtanmay37@gmail.com</a>
+    </div>
+
+    <div class="socials">
+      <a href="https://github.com/tanmaytiwari37" target="_blank" class="social-pill">GitHub ↗</a>
+      <a href="https://www.linkedin.com/in/itanmaytiwari37/" target="_blank" class="social-pill">LinkedIn ↗</a>
+      <a href="https://x.com/whatatanmay37" target="_blank" class="social-pill">X / Twitter ↗</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <b>Tanmay Tiwari</b> · Aerospace @ VIT Bhopal · Kothri Kalan, MP · © 2026 · Built with Python &amp; Curiosity
+</footer>
+
+<!-- MODAL — quick view from Work tab -->
+<div class="modal-bg" id="modal-bg" onclick="closeModalBG(event)">
+  <div class="modal" id="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+/* ═══ TABS ═══ */
+function showTab(id) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(n => n.classList.remove('active'));
+  const tab = document.getElementById(id);
+  const btn = document.querySelector(`[data-tab="${id}"]`);
+  if (tab) tab.classList.add('active');
+  if (btn) btn.classList.add('active');
+  try { history.replaceState(null,'','#'+id); } catch(e) {}
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+window.addEventListener('load', () => {
+  const hash = window.location.hash.slice(1);
+  if (['home','work','blog','certs','contact'].includes(hash)) showTab(hash);
+});
+
+/* ═══ BLOG SWITCHER ═══ */
+function showBlog(id) {
+  document.querySelectorAll('.blog-article').forEach(a => a.classList.remove('active'));
+  document.querySelectorAll('.blog-toc-item').forEach(b => b.classList.remove('active'));
+  const article = document.getElementById(id);
+  const btn = document.querySelector(`[data-blog="${id}"]`);
+  if (article) article.classList.add('active');
+  if (btn) btn.classList.add('active');
+  document.querySelector('.blog-content').scrollTo({ top:0, behavior:'smooth' });
+  // also scroll page to top of blog area on mobile
+  if (window.innerWidth < 900) {
+    document.querySelector('.blog-content').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+}
+
+/* ═══ THEMES ═══ */
+const themes = ['solar','cyber','carbon','plasma'];
+const themeIcons = { cyber:'◐', carbon:'●', plasma:'◑', solar:'○' };
+let currentTheme = 'solar';
+try { currentTheme = localStorage.getItem('tt-theme') || 'solar'; } catch(e) {}
+applyTheme(currentTheme);
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('theme-btn');
+  if (btn) btn.textContent = themeIcons[t];
+  currentTheme = t;
+  try { localStorage.setItem('tt-theme', t); } catch(e) {}
+}
+function cycleTheme() {
+  const i = themes.indexOf(currentTheme);
+  applyTheme(themes[(i+1) % themes.length]);
+}
+
+/* ═══ CURSOR ═══ */
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx=0, my=0;
+document.addEventListener('mousemove', e => {
+  mx=e.clientX; my=e.clientY;
+  cursor.style.left=mx+'px'; cursor.style.top=my+'px';
+  setTimeout(() => { ring.style.left=mx+'px'; ring.style.top=my+'px'; }, 60);
+});
+function bindCursorHover() {
+  document.querySelectorAll('a, button, .proj-card, .cert-card, .blog-toc-item').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.width='14px'; cursor.style.height='14px';
+      ring.style.width='50px'; ring.style.height='50px'; ring.style.opacity='0.9';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.width='8px'; cursor.style.height='8px';
+      ring.style.width='32px'; ring.style.height='32px'; ring.style.opacity='0.5';
+    });
+  });
+}
+bindCursorHover();
+
+/* ═══ STARS BACKGROUND ═══ */
+const canvas = document.getElementById('stars-canvas');
+const ctx = canvas.getContext('2d');
+let stars = [];
+function resizeStarCanvas() { canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
+function makeStars(n) {
+  stars = [];
+  for (let i=0; i<n; i++) {
+    stars.push({
+      x:Math.random()*canvas.width, y:Math.random()*canvas.height,
+      r:Math.random()*1.3, a:Math.random(),
+      da:(Math.random()-0.5)*0.005, speed:Math.random()*0.25+0.04
+    });
+  }
+}
+function getStarRGB() {
+  const root = document.documentElement;
+  const r = getComputedStyle(root).getPropertyValue('--star-r').trim() || '180';
+  const g = getComputedStyle(root).getPropertyValue('--star-g').trim() || '220';
+  const b = getComputedStyle(root).getPropertyValue('--star-b').trim() || '255';
+  return { r, g, b };
+}
+function drawStars() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const { r, g, b } = getStarRGB();
+  stars.forEach(s => {
+    s.a += s.da;
+    if (s.a<=0 || s.a>=1) s.da*=-1;
+    s.y += s.speed;
+    if (s.y > canvas.height) { s.y=0; s.x=Math.random()*canvas.width; }
+    ctx.beginPath();
+    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fillStyle = `rgba(${r},${g},${b},${s.a})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(drawStars);
+}
+resizeStarCanvas();
+makeStars(180);
+drawStars();
+let lastW = window.innerWidth;
+window.addEventListener('resize', () => {
+  if (window.innerWidth !== lastW) {
+    resizeStarCanvas(); makeStars(180);
+    resizePlaneCanvas();
+    lastW = window.innerWidth;
+  }
+});
+
+/* ═══ PLANE — atmospheric diagonal flyby every ~30s ═══ */
+const planeCanvas = document.getElementById('plane-canvas');
+const pctx = planeCanvas.getContext('2d');
+function resizePlaneCanvas() { planeCanvas.width=window.innerWidth; planeCanvas.height=window.innerHeight; }
+resizePlaneCanvas();
+
+let plane = null;
+
+function getPlaneColor() {
+  const v = getComputedStyle(document.documentElement).getPropertyValue('--plane-color').trim();
+  return v || 'rgba(180,220,255,0.6)';
+}
+
+function launchPlane() {
+  // Start near top-left or top-right; fly across diagonally toward the opposite edge
+  // 60% top edge, 40% side edge — keeps it feeling like sky
+  const leftToRight = Math.random() > 0.5;
+  const startFromTop = Math.random() > 0.4;
+
+  let startX, startY, endX, endY;
+  const W = window.innerWidth;
+  const H = window.innerHeight;
+
+  if (leftToRight) {
+    startX = -60;
+    startY = startFromTop ? Math.random() * H * 0.3 : Math.random() * H * 0.5 + H * 0.05;
+    endX = W + 60;
+    endY = startY + (Math.random() * H * 0.4 + H * 0.1); // descend diagonally
+  } else {
+    startX = W + 60;
+    startY = startFromTop ? Math.random() * H * 0.3 : Math.random() * H * 0.5 + H * 0.05;
+    endX = -60;
+    endY = startY + (Math.random() * H * 0.4 + H * 0.1);
+  }
+
+  plane = {
+    sx:startX, sy:startY, ex:endX, ey:endY,
+    startTime:performance.now(),
+    duration:18000 + Math.random()*6000, // 18-24s slow flyby
+    trail:[]
+  };
+}
+
+function drawPlane(now) {
+  pctx.clearRect(0,0,planeCanvas.width,planeCanvas.height);
+  if (!plane) return;
+
+  const t = (now - plane.startTime) / plane.duration;
+  if (t >= 1) { plane = null; return; }
+
+  const x = plane.sx + (plane.ex - plane.sx) * t;
+  const y = plane.sy + (plane.ey - plane.sy) * t;
+  const angle = Math.atan2(plane.ey - plane.sy, plane.ex - plane.sx);
+
+  // Trail
+  plane.trail.push({x,y,a:1});
+  if (plane.trail.length > 40) plane.trail.shift();
+
+  const color = getPlaneColor();
+  // baseColor like rgba(r,g,b,a) — extract for trail opacity
+  const rgbaMatch = color.match(/rgba?\(([^)]+)\)/);
+  const parts = rgbaMatch ? rgbaMatch[1].split(',').map(s=>s.trim()) : ['180','220','255','0.6'];
+  const r = parts[0], g = parts[1], b = parts[2];
+
+  // Draw trail
+  plane.trail.forEach((p,i) => {
+    p.a -= 0.025;
+    if (p.a > 0) {
+      pctx.beginPath();
+      pctx.arc(p.x, p.y, 0.8, 0, Math.PI*2);
+      pctx.fillStyle = `rgba(${r},${g},${b},${p.a * 0.4})`;
+      pctx.fill();
+    }
+  });
+
+  // Plane body — tiny triangle pointing along motion vector
+  pctx.save();
+  pctx.translate(x,y);
+  pctx.rotate(angle);
+  pctx.beginPath();
+  pctx.moveTo(6, 0);
+  pctx.lineTo(-4, -2.5);
+  pctx.lineTo(-3, 0);
+  pctx.lineTo(-4, 2.5);
+  pctx.closePath();
+  pctx.fillStyle = color;
+  pctx.fill();
+  pctx.restore();
+}
+
+function planeLoop(now) {
+  drawPlane(now);
+  requestAnimationFrame(planeLoop);
+}
+requestAnimationFrame(planeLoop);
+
+// Launch first plane after 5s, then every 30-45s
+setTimeout(() => {
+  launchPlane();
+  setInterval(() => {
+    if (!plane) launchPlane();
+  }, 30000 + Math.random()*15000);
+}, 5000);
+
+/* ═══ MODAL CASE STUDIES (Work tab quick view) ═══ */
+const cases = {
+  p1: {
+    title:'Student Productivity Classifier',
+    meta:'ML · Random Forest · 2026',
+    problem:'Predict productivity tier (Low/Med/High) from lifestyle inputs — and surface which inputs matter most.',
+    process:'Built a stratified train-test split on a 4-feature dataset, fit a Random Forest classifier, evaluated via confusion matrix, extracted feature importance rankings.',
+    solution:'A working classifier plus interpretable feature-importance output. My first complete end-to-end ML project.',
+    blogId:'b1'
+  },
+  p2: {
+    title:'ISA Atmospheric Calculator',
+    meta:'Aerospace · Python · 2026',
+    problem:'Aerospace formulas need continuous atmospheric values at any altitude — but the standard tables are discrete.',
+    process:'Encoded all 7 ISA layers with their lapse rates, applied barometric and ideal-gas equations in vectorized NumPy, validated against published reference tables.',
+    solution:'A reusable Python module computing T/P/ρ from 0–86 km, with Matplotlib visualizations. Foundation for future flight-performance work.',
+    blogId:'b2'
+  },
+  p3: {
+    title:'Vibe-Tunes',
+    meta:'Python · Streamlit · 2025',
+    problem:'Music recommenders optimize for listening history, not the mood you want to be in right now.',
+    process:'Mapped emotional states onto audio-feature dimensions (tempo, valence, energy), built a Pandas filter pipeline, surfaced through Streamlit UI.',
+    solution:'A live web app where users select a mood and receive matching recommendations. Bootcamp milestone project.',
+    blogId:'b3'
+  },
+  p4: {
+    title:'Habit Tracker',
+    meta:'Python · Modular · 2026',
+    problem:'Personal discipline is hard to measure objectively — and a single-file script obscures architecture lessons.',
+    process:'Built three separated modules (logging, analytics, visualization) with strict layer boundaries; computed streaks, completion rates, trend plots in Matplotlib.',
+    solution:'A modular Python framework. The architecture lesson outlasted the project itself.',
+    blogId:'b4'
+  },
+  p5: {
+    title:'Utility Scripts — Python To-Do',
+    meta:'Python CLI · 2025',
+    problem:'Mastering Python fundamentals requires real state management, not just syntax practice.',
+    process:'Built a CLI task manager with add/delete/status logic and persistent file storage; zero external dependencies.',
+    solution:'Lightweight, reliable, and reusable — my Python foundations laid clean.',
+    blogId:null
+  }
+};
+
+function openModal(id) {
+  const c = cases[id];
+  if (!c) return;
+  const blogBtn = c.blogId
+    ? `<a href="#" class="modal-cta" onclick="closeModal(); showTab('blog'); setTimeout(()=>showBlog('${c.blogId}'),300); return false;">Read Full Case Study →</a>`
+    : '';
+  document.getElementById('modal-body').innerHTML = `
+    <h2>${c.title}</h2>
+    <div class="modal-meta">${c.meta}</div>
+    <div class="modal-sec"><h3>Problem</h3><p>${c.problem}</p></div>
+    <div class="modal-sec"><h3>Process</h3><p>${c.process}</p></div>
+    <div class="modal-sec"><h3>Outcome</h3><p>${c.solution}</p></div>
+    ${blogBtn}
+  `;
+  document.getElementById('modal-bg').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('modal-bg').classList.remove('active');
+  document.body.style.overflow = '';
+}
+function closeModalBG(e) {
+  if (e.target === document.getElementById('modal-bg')) closeModal();
+}
+document.addEventListener('keydown', e => { if (e.key==='Escape') closeModal(); });
+
+/* ═══ NETLIFY CONTACT FORM ═══ */
+function handleContactSubmit(e) {
+  e.preventDefault();
+  const form = e.target;
+  const submit = document.getElementById('cf-submit');
+  const status = document.getElementById('cf-status');
+
+  // Reset status
+  status.className = 'form-status';
+  status.textContent = '';
+
+  // Disable submit, show sending state
+  submit.disabled = true;
+  const originalText = submit.textContent;
+  submit.textContent = 'Sending…';
+
+  // Build form data
+  const formData = new FormData(form);
+  const params = new URLSearchParams();
+  formData.forEach((value, key) => params.append(key, value));
+
+  fetch('/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: params.toString()
+  })
+  .then(res => {
+    if (res.ok) {
+      status.className = 'form-status show success';
+      status.textContent = '✓ Message sent. I will respond within 48 hours.';
+      form.reset();
+    } else {
+      throw new Error('Submission failed');
+    }
+  })
+  .catch(() => {
+    status.className = 'form-status show error';
+    status.innerHTML = '✕ Could not send. Email directly: <a href="mailto:itanmaytiwari37@gmail.com" style="color:inherit; text-decoration:underline;">itanmaytiwari37@gmail.com</a>';
+  })
+  .finally(() => {
+    submit.disabled = false;
+    submit.textContent = originalText;
+  });
+}
+</script>
+</body>
+</html>
