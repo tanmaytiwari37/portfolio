@@ -364,6 +364,63 @@ main {
   color:var(--accent); font-weight:500;
 }
 
+/* Inline code inside blog paragraphs */
+.blog-section code {
+  font-family:'JetBrains Mono', monospace;
+  font-size:0.78rem;
+  padding:0.1rem 0.4rem;
+  background:color-mix(in srgb, var(--accent) 10%, transparent);
+  border:1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+  color:var(--accent);
+  border-radius:3px;
+  white-space:nowrap;
+}
+/* Code blocks */
+.blog-section pre {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-left:3px solid var(--accent);
+  padding:1rem 1.2rem;
+  margin:1rem 0;
+  overflow-x:auto;
+  font-family:'JetBrains Mono', monospace;
+  font-size:0.78rem;
+  line-height:1.6;
+  color:var(--text);
+}
+.blog-section pre code {
+  background:transparent; border:none; padding:0;
+  color:inherit; font-size:inherit; white-space:pre;
+}
+/* Tables in blog */
+.blog-table {
+  width:100%;
+  margin:1rem 0;
+  border-collapse:collapse;
+  font-size:0.82rem;
+}
+.blog-table th, .blog-table td {
+  text-align:left;
+  padding:0.7rem 0.9rem;
+  border-bottom:1px solid var(--border);
+  vertical-align:top;
+}
+.blog-table th {
+  font-size:0.62rem;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  color:var(--accent);
+  font-weight:600;
+  border-bottom:1px solid var(--border2);
+}
+.blog-table tr:last-child td { border-bottom:none; }
+.blog-table td:first-child {
+  font-family:'JetBrains Mono', monospace;
+  color:var(--text2);
+  font-size:0.75rem;
+  white-space:nowrap;
+}
+
 /* ═══════════════════════════════════════════════════════
    CERTIFICATIONS
    ═══════════════════════════════════════════════════════ */
@@ -646,7 +703,7 @@ main {
 <canvas id="plane-canvas"></canvas>
 
 <nav>
-  <a href="#home" class="nav-logo" onclick="showTab('home'); return false;">TT<span>.systems</span></a>
+  <a href="#home" class="nav-logo" onclick="showTab('home'); return false;">tanmay<span>.aero</span></a>
   <div class="nav-tabs">
     <button class="nav-tab active" data-tab="home" onclick="showTab('home')">Home</button>
     <button class="nav-tab" data-tab="work" onclick="showTab('work')">Work</button>
@@ -786,26 +843,26 @@ main {
         </div>
         <div class="proj-foot">
           <a href="https://github.com/tanmaytiwari37/Utility_Scripts" class="proj-link" target="_blank" onclick="event.stopPropagation()">GitHub ↗</a>
-          <span class="proj-more">Quick View</span>
+          <span class="proj-more">Read Case Study →</span>
         </div>
       </div>
     </article>
 
-    <article class="proj-card" style="cursor:default; opacity:0.6;">
+    <article class="proj-card" onclick="openModal('p6')">
       <div class="proj-thumb">
-        <div class="proj-thumb-bg" style="background:linear-gradient(135deg, transparent 0%, color-mix(in srgb, var(--text3) 20%, transparent) 100%);"></div>
+        <div class="proj-thumb-bg" style="background:linear-gradient(135deg, transparent 0%, color-mix(in srgb, var(--accent2) 25%, transparent) 100%);"></div>
         <div class="proj-num">06</div>
-        <div class="proj-badge b-ml">SOON</div>
-        <div class="proj-icon">🚀</div>
+        <div class="proj-badge b-live">LIVE</div>
+        <div class="proj-icon">💰</div>
       </div>
       <div class="proj-body">
-        <div class="proj-title">Next Project Loading...</div>
+        <div class="proj-title">Expense Tracker</div>
         <div class="proj-tags">
-          <span class="proj-tag">CFD</span><span class="proj-tag">GenAI</span><span class="proj-tag">TBD</span>
+          <span class="proj-tag">FastAPI</span><span class="proj-tag">Streamlit</span><span class="proj-tag">MySQL</span>
         </div>
         <div class="proj-foot">
-          <span class="proj-link">In Progress</span>
-          <span class="proj-more">Coming Soon</span>
+          <a href="https://github.com/tanmaytiwari37/Expense-Tracker" class="proj-link" target="_blank" onclick="event.stopPropagation()">GitHub ↗</a>
+          <span class="proj-more">Read Case Study →</span>
         </div>
       </div>
     </article>
@@ -830,6 +887,8 @@ main {
         <button class="blog-toc-item" data-blog="b2" onclick="showBlog('b2')">02 · ISA Atmosphere</button>
         <button class="blog-toc-item" data-blog="b3" onclick="showBlog('b3')">03 · Vibe-Tunes</button>
         <button class="blog-toc-item" data-blog="b4" onclick="showBlog('b4')">04 · Habit Tracker</button>
+        <button class="blog-toc-item" data-blog="b5" onclick="showBlog('b5')">05 · Utility Scripts</button>
+        <button class="blog-toc-item" data-blog="b6" onclick="showBlog('b6')">06 · Expense Tracker</button>
       </div>
     </aside>
 
@@ -1050,6 +1109,171 @@ main {
         </div>
       </article>
 
+      <!-- BLOG 05 — Utility Scripts -->
+      <article class="blog-article" id="b5">
+        <div class="blog-hero">
+          <div class="blog-meta">CASE STUDY 05 <span>·</span> PYTHON FUNDAMENTALS <span>·</span> 2025</div>
+          <h2 class="blog-title">Utility Scripts — Python CLI To-Do</h2>
+          <p class="blog-subtitle">A lightweight command-line task manager. Zero external dependencies, persistent file storage, clean state management. My first Python project where the goal was discipline, not features.</p>
+          <div class="blog-actions">
+            <a href="https://github.com/tanmaytiwari37/Utility_Scripts" target="_blank" class="blog-action primary">GitHub Repo ↗</a>
+            <a href="#" onclick="showTab('work'); return false;" class="blog-action">All Projects</a>
+          </div>
+        </div>
+
+        <div class="blog-section">
+          <h3>What it does</h3>
+          <p>A small command-line task manager written in pure Python. Add tasks, mark them complete, delete them, list everything. Tasks persist to disk between runs through a plain-text file — close the terminal, reopen tomorrow, your list is still there.</p>
+          <p>No web UI, no database, no dependencies beyond the Python standard library. The entire project is a few well-organized modules.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>Why I built it</h3>
+          <p>I needed a project that would force me to think about <b>state management</b> rather than just syntax. Most Python tutorials at the beginner level teach loops, lists, and functions in isolation — they never make you persist data, handle edge cases, or design a clean interface between modules. A to-do list demands all three.</p>
+          <p>I also wanted something I'd actually use. Building a tool you personally rely on is the strongest motivator to keep iterating until it's good.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>How I built it</h3>
+          <p>The structure separates <b>data handling</b> from <b>user interaction</b>. One module owns reading and writing the persistent file. Another module owns parsing CLI arguments and printing output. Neither layer reaches into the other's responsibilities — the CLI never touches the file directly; the data module never prints anything.</p>
+          <p>Persistence is plain text, one task per line, with simple delimiters. Could have used JSON or a database, but for this scale plain text wins on simplicity and human-readability — you can open the file in any editor and see your tasks.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>What I learned</h3>
+          <p>Three things that shaped every Python project I built afterward. <b>Persistence design is a real decision</b> — JSON vs SQLite vs plain text isn't just preference, each has cost-of-complexity vs cost-of-flexibility trade-offs. <b>Module boundaries matter even in tiny projects</b> — the moment I split data from CLI, adding features like task priority became one-file changes instead of refactors. <b>Zero-dependency code ages well</b> — this project still runs on any Python install today, no <code>pip install</code> required, no version-compatibility worry.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>Real-world relevance</h3>
+          <p>The pattern — <b>CLI parses input → data module persists state → display layer renders output</b> — is the foundation of every command-line tool in the Python ecosystem, from <code>pip</code> to <code>black</code> to <code>pytest</code>. Building one yourself, even at toy scale, demystifies how those tools work internally.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>Stack</h3>
+          <div class="tech-strip">
+            <span class="tool-chip">Python</span>
+            <span class="tool-chip">CLI</span>
+            <span class="tool-chip">File I/O</span>
+            <span class="tool-chip">Zero Dependencies</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- BLOG 06 — Expense Tracker -->
+      <article class="blog-article" id="b6">
+        <div class="blog-hero">
+          <div class="blog-meta">CASE STUDY 06 <span>·</span> FULL-STACK · FASTAPI + STREAMLIT + MYSQL <span>·</span> 2026</div>
+          <h2 class="blog-title">Expense Tracker</h2>
+          <p class="blog-subtitle">My first full-stack app. A 5-day summer sprint that took me from "what is an API?" to shipping a real working tool with FastAPI, Streamlit, and MySQL.</p>
+          <div class="blog-actions">
+            <a href="https://github.com/tanmaytiwari37/Expense-Tracker" target="_blank" class="blog-action primary">GitHub Repo ↗</a>
+            <a href="#" onclick="showTab('work'); return false;" class="blog-action">All Projects</a>
+          </div>
+        </div>
+
+        <div class="blog-section">
+          <h3>The Spark</h3>
+          <p>A few weeks into my Gen AI + Data Science bootcamp at Codebasics, I hit the project module. The brief was simple: build an end-to-end expense tracker. Backend, frontend, database, tests — the works.</p>
+          <p>I had two options. Follow the video tutorials line-by-line, or build the whole thing myself and only check the videos when truly stuck. I picked option two. Summer vacation, 10+ free hours a day, no excuses. This is what I learned.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>What I Built</h3>
+          <p>A web app where users can <b>add, update, and delete daily expenses</b> by date, view <b>category-wise spending</b> with a Plotly pie chart, see <b>monthly trends</b> with a bar chart, and get <b>analytics for any custom date range</b>.</p>
+          <p><b>Tech stack:</b> Streamlit (frontend) → FastAPI (backend) → MySQL (database), with Pydantic for validation, pytest for tests, and Python's <code>logging</code> module writing to a <code>server.log</code> file.</p>
+          <p>The architecture is the standard three-layer setup:</p>
+<pre><code>Streamlit UI  ──HTTP──>  FastAPI  ──SQL──>  MySQL
+  (port 8501)            (port 8000)        (port 3306)</code></pre>
+          <p>Clean separation. Each layer can change without breaking the others.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>The Layers, Bottom-Up</h3>
+          <p><b>1. The Database Layer.</b> The heart of <code>db_helper1.py</code> is a custom context manager:</p>
+<pre><code>@contextmanager
+def get_db_cursor(commit=False):
+    connection = mysql.connector.connect(...)
+    cursor = connection.cursor(dictionary=True)
+    yield cursor
+    if commit:
+        connection.commit()
+    cursor.close()
+    connection.close()</code></pre>
+          <p>That <code>yield</code> is the magic. Code before it runs as setup, code after runs as cleanup — automatically, even if the <code>with</code> block crashes. Every CRUD function now becomes a 3-liner instead of 10 lines of boilerplate.</p>
+          <p>Two non-negotiable rules I learned the hard way: <b>always use <code>%s</code> placeholders</b>, never f-strings, for SQL parameters — f-strings open the door to SQL injection. And <b><code>commit=True</code> for any write</b>; forget it and your INSERTs vanish silently when the connection closes. Spent an hour on this bug before it clicked.</p>
+
+          <p><b>2. The API Layer.</b> FastAPI made this surprisingly painless. Four endpoints, each maybe 5 lines:</p>
+<pre><code>@app.get("/expenses/{expense_date}", response_model=List[Expense])
+def get_expenses(expense_date: date):
+    return db_helper1.fetch_expenses_for_date(expense_date)</code></pre>
+          <p>The <code>response_model=List[Expense]</code> line does three things at once: validates the output, strips fields not in the model, and auto-documents the response shape in <code>/docs</code>. That last part is huge — FastAPI gives you a full Swagger UI for free at <code>http://127.0.0.1:8000/docs</code>. I used it more than Postman.</p>
+          <p>One trap that cost me an afternoon: I included <code>expense_date</code> in my <code>Expense</code> Pydantic model. The frontend didn't send the date in the body (it's in the URL), so every POST returned a 422 validation error. <b>Lesson: input models and output models often need to differ.</b></p>
+
+          <p><b>3. The Frontend.</b> Streamlit is wild. Pure Python, no HTML, and you get a working UI. The whole add/update form is one <code>with st.form()</code> block and a loop that builds 5 input rows. The bug that taught me about Streamlit's quirks:</p>
+<pre><code>key=f"amount_{i}"               # ❌ widgets froze on old data
+key=f"amount_{selected_date}_{i}"  # ✅ fresh widgets per date</code></pre>
+          <p>Newer Streamlit versions cache widget state by <code>key</code>. When I switched dates, the widgets kept showing the previous date's values. Including <code>selected_date</code> in the key makes each date's form independent. My instructor's tutorial code (recorded on an older Streamlit) didn't need this — a real-world reminder that <b>libraries drift, and you'll always be patching small things.</b></p>
+
+          <p><b>4. Tests.</b> <code>pytest</code> with a <code>conftest.py</code> that adds the project root to <code>sys.path</code>:</p>
+<pre><code>sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))</code></pre>
+          <p>This single line let me write <code>from backend import db_helper1</code> in test files without fuss. Pytest auto-discovers <code>conftest.py</code> — no imports needed.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>The Bugs That Taught Me the Most</h3>
+          <table class="blog-table">
+            <thead>
+              <tr><th>Bug</th><th>Real Lesson</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>TypeError: NoneType has no len()</td><td>Functions that print but don't <code>return</code> are useless to callers.</td></tr>
+              <tr><td>422 Unprocessable Entity</td><td>Pydantic models for input vs output should often be different.</td></tr>
+              <tr><td>Widget state stuck on old date</td><td>Library versions matter. Tutorials get outdated.</td></tr>
+              <tr><td>JSONDecodeError from frontend</td><td>I was calling Streamlit's port (8501) instead of FastAPI's (8000).</td></tr>
+              <tr><td>ModuleNotFoundError: mysql</td><td>Two Pythons on the machine, library installed in the wrong one. Use a venv.</td></tr>
+            </tbody>
+          </table>
+          <p>Each one stung in the moment. Each one is a <b>permanent skill upgrade</b>.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>What "Done" Looked Like</h3>
+          <p>After 5 days: all four endpoints working and tested, full UI with three tabs (Add/Update, Category Analytics, Monthly Analytics), tests passing in pytest, logging writing to <code>server.log</code> on every operation, <code>.env</code> for credentials with <code>.env.example</code> for others and <code>.gitignore</code> keeping secrets out, README with screenshots, tech stack, setup steps, and API endpoint table, pushed to GitHub with a clean commit history.</p>
+          <p>The project is at the point where someone can clone it, run <code>pip install -r requirements.txt</code>, import the SQL dump, and have it working in under five minutes. <b>That portability is the real deliverable.</b></p>
+        </div>
+
+        <div class="blog-section">
+          <h3>What I'd Do Differently</h3>
+          <ul>
+            <li><b>Authentication.</b> Right now every user shares one database. Adding JWT auth + a <code>user_id</code> column on expenses is the obvious next step.</li>
+            <li><b>Edit individual rows.</b> My current POST endpoint deletes all expenses for a date and re-inserts them. It works, but a proper UPDATE would be cleaner.</li>
+            <li><b>Deploy it.</b> Streamlit Cloud for the frontend, Render or Railway for the backend. Want a real shareable link.</li>
+          </ul>
+        </div>
+
+        <div class="blog-section">
+          <h3>The Bigger Takeaway</h3>
+          <p>The reason building from scratch matters isn't just "you learn more." It's that you build the muscle of <b>being stuck and getting unstuck</b>. Tutorials let you skip that. Real projects don't.</p>
+          <p>By the end, I wasn't just copying patterns — I could read an error trace, hypothesize where it came from, fix it, and explain why. That's the gap between "watched a course" and "can ship."</p>
+          <p>If you're early in your bootcamp and tempted to follow along passively: don't. Pick a project, close the video tab, and figure it out. Come back to the videos when you genuinely need them. It's slower in the short term and <b>dramatically faster in the long term</b>.</p>
+        </div>
+
+        <div class="blog-section">
+          <h3>Stack</h3>
+          <div class="tech-strip">
+            <span class="tool-chip">Python</span>
+            <span class="tool-chip">FastAPI</span>
+            <span class="tool-chip">Streamlit</span>
+            <span class="tool-chip">Pydantic</span>
+            <span class="tool-chip">MySQL</span>
+            <span class="tool-chip">pytest</span>
+            <span class="tool-chip">Plotly</span>
+            <span class="tool-chip">Pandas</span>
+          </div>
+        </div>
+      </article>
+
     </div>
   </div>
 </section>
@@ -1138,18 +1362,15 @@ main {
     <h2 class="contact-big">Let's build <em>something.</em></h2>
     <p class="contact-sub">Open to collaboration on aerospace projects, data science work, or conversations about defense technology.</p>
 
-    <!-- NETLIFY FORM -->
+    <!-- FORMSPREE FORM -->
     <form
-      name="contact"
+      action="https://formspree.io/f/xredgzry"
       method="POST"
-      data-netlify="true"
-      data-netlify-honeypot="bot-field"
       class="contact-form"
       onsubmit="handleContactSubmit(event)"
     >
-      <input type="hidden" name="form-name" value="contact">
       <p style="display:none;">
-        <label>Don't fill this out if you're human: <input name="bot-field"></label>
+        <label>Don't fill this out if you're human: <input name="_gotcha"></label>
       </p>
 
       <div class="form-row">
@@ -1466,7 +1687,15 @@ const cases = {
     problem:'Mastering Python fundamentals requires real state management, not just syntax practice.',
     process:'Built a CLI task manager with add/delete/status logic and persistent file storage; zero external dependencies.',
     solution:'Lightweight, reliable, and reusable — my Python foundations laid clean.',
-    blogId:null
+    blogId:'b5'
+  },
+  p6: {
+    title:'Expense Tracker',
+    meta:'Full-Stack · FastAPI + Streamlit + MySQL · 2026',
+    problem:'Build a real full-stack expense tracker end-to-end — backend, frontend, database, tests — without copying tutorials line by line.',
+    process:'Designed a three-layer architecture (Streamlit UI → FastAPI → MySQL), implemented CRUD with a custom context manager for DB connections, added Pydantic validation, wrote pytest tests, and shipped with proper logging and env management.',
+    solution:'A working full-stack app in 5 days. The repo runs in under five minutes after cloning. The deeper deliverable: the muscle of being stuck and getting unstuck.',
+    blogId:'b6'
   }
 };
 
@@ -1512,15 +1741,18 @@ function handleContactSubmit(e) {
   const originalText = submit.textContent;
   submit.textContent = 'Sending…';
 
-  // Build form data
+  // Build JSON payload for Formspree
   const formData = new FormData(form);
-  const params = new URLSearchParams();
-  formData.forEach((value, key) => params.append(key, value));
+  const data = {};
+  formData.forEach((value, key) => { data[key] = value; });
 
-  fetch('/', {
+  fetch(form.action, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: params.toString()
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify(data)
   })
   .then(res => {
     if (res.ok) {
